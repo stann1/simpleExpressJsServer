@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 var debug = require('debug')(`expressjs-scaffold:application`);
 
+debug("Current environment: " + (process.env.NODE_ENV || "localdev"));
+
 /**
  * Load module dependencies.
  */
 setupDatabase()
-  .then((db) => require('../data/data.init').init(db)
+  .then((db) => require('../data/data.init').init(db))
   .then((repository) => require('../app').init(repository))
   .then((app) => {
     // set the app version and build time, so they can be queried from the client
@@ -39,7 +41,10 @@ setupDatabase()
         debug('Listening on ' + bind);
     });
   })
-)
+  .catch(err => {
+    debug("Unhandled exception on service setup. " + err);
+    process.exit(1);
+  })
 
   
 /**
@@ -112,7 +117,6 @@ function createServer(app){
 
 /* Sets-up the db connection */
 function setupDatabase(){
-  debug("Current environment: " + (process.env.NODE_ENV || "localdev"));
 
   return new Promise((resolve, reject) => {
     const database = {};
